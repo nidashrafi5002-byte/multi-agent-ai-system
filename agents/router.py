@@ -1,0 +1,130 @@
+import os
+import re
+import time
+from dotenv import load_dotenv
+from tools.groq_utils import client
+
+load_dotenv()
+
+def route_query(user_input: str) -> dict:
+
+    prompt = f"""
+    You are a Router Agent. Classify the user query into exactly one domain.
+
+    DOMAINS:
+    1. research - Deep research, detailed reports, latest advancements
+    2. stock    - Stock analysis, market data, investment advice
+    3. code     - Code review, debugging, programming help
+    4. job       - User wants help with a SPECIFIC job application,
+                   needs resume tailoring, cover letter writing,
+                   interview prep for a specific role they are 
+                   APPLYING FOR RIGHT NOW.
+                   Keywords: help me apply, write cover letter,
+                   tailor my resume, I am applying for, 
+                   job application for, prepare me for interview
+                   
+                   NOT job: "how to become X", "career advice",
+                   "what skills do I need", "how to get into X field"
+                   These are GENERAL questions.
+    5. flight   - Flight tracking, flight status
+    6. image    - Generate image, create picture, draw
+    7. general  - Simple facts, quick answers, basic questions
+
+    EXAMPLES:
+    Query: "What are latest advancements in LLMs?" → research
+    Query: "Explain quantum computing in detail"    → research
+    Query: "Research about climate change"          → research
+    Query: "Deep dive into blockchain technology"   → research
+    Query: "Analyse AAPL stock"                     → stock
+    Query: "Should I invest in Tesla?"              → stock
+    Query: "Review this Python code"                → code
+    Query: "Help me apply for ML Engineer job"      → job
+    Query: "Track flight AI101"                     → flight
+    Query: "Generate image of sunset"               → image
+    Query: "Who is Elon Musk?"                      → general
+    Query: "What is DNA?"                           → general
+    Query: "Who invented telephone?"                → general
+    Query: "What is photosynthesis?"                → general
+    Query: "Capital of France?"                     → general
+    Query: "Tell me a joke"                         → general
+    Query: "What is speed of light?"                → general
+    Query: "Who wrote Harry Potter?"                → general
+
+    Query: "What is photosynthesis?"               → general
+    Query: "What is the speed of light?"           → general
+    Query: "Explain gravity simply"                → general
+    Query: "Explain X simply"                      → general
+    Query: "What is X?"                            → general
+
+    Now classify this query:
+    Query: "{user_input}" →
+
+    Reply with ONLY one word from:
+    research, stock, code, job, flight, image, general
+    """
+
+    max_retries = 3
+
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt}],
+                timeout=10
+            )
+
+            domain = response.choices[0].message.content.strip().lower()
+
+            # Clean up response
+            domain = domain.replace(".", "").replace(",", "").strip()
+
+            valid_domains = ["research", "stock", "code",
+                             "job", "flight", "image", "general"]
+
+            if domain in valid_domains:
+                pass
+            else:
+                # Try to find domain in response
+                for d in valid_domains:
+                    if d in domain:
+                        domain = d
+                        break
+                else:
+                    domain = "general"
+
+            # Post-processing: if LLM said research but query looks simple, downgrade to general
+            simple_general_patterns = [
+                "what is ", "who is ", "who was ",
+                "who wrote ", "who invented ", "who discovered ",
+                "explain ", "simply", "what are the basic",
+                "speed of ", "height of ", "capital of "
+            ]
+            query_lower = user_input.lower()
+            if domain == "research":
+                for pattern in simple_general_patterns:
+                    if query_lower.startswith(pattern):
+                        research_keywords = [
+                            "latest", "advanced", "research",
+                            "comprehensive", "detailed", "analysis",
+                            "advancements", "future", "deep dive"
+                        ]
+                        if not any(kw in query_lower for kw in research_keywords):
+                            domain = "general"
+                        break
+
+            return {
+                "domain": domain,
+                "query": user_input
+            }
+
+        except Exception as e:
+            print(f"   ⚠️ Attempt {attempt+1}/{max_retries} failed: {e}")
+            time.sleep(2)
+
+    # Default fallback
+    return {
+        "domain": "general",
+        "query": user_input
+    }
+    # Post processing rule
+    

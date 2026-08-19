@@ -1,0 +1,12 @@
+streamlit
+streamlit-folium
+groq
+python-dotenv
+langgraph
+langchain
+chromadb
+requests
+folium
+plotly
+pandas
+yfinance

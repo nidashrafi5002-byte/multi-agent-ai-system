@@ -1,0 +1,151 @@
+{
+  "timestamp": "09-08-2026 14:16",
+  "results": [
+    {
+      "pipeline": "research",
+      "avg_time": 28.25,
+      "min_time": 20.56,
+      "max_time": 32.29,
+      "queries_tested": 3,
+      "detailed": [
+        {
+          "query": "What are the latest advancements in LLMs?",
+          "time_seconds": 31.9,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Explain quantum computing",
+          "time_seconds": 32.29,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Research about blockchain technology",
+          "time_seconds": 20.56,
+          "status": "\u2705 Success"
+        }
+      ]
+    },
+    {
+      "pipeline": "stock",
+      "avg_time": 3.03,
+      "min_time": 2.82,
+      "max_time": 3.22,
+      "queries_tested": 3,
+      "detailed": [
+        {
+          "query": "Analyse AAPL stock for me",
+          "time_seconds": 3.05,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Should I invest in Tesla?",
+          "time_seconds": 2.82,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Analyse Microsoft stock",
+          "time_seconds": 3.22,
+          "status": "\u2705 Success"
+        }
+      ]
+    },
+    {
+      "pipeline": "code",
+      "avg_time": 10.85,
+      "min_time": 7.0,
+      "max_time": 16.14,
+      "queries_tested": 3,
+      "detailed": [
+        {
+          "query": "Review this Python code: def add(a,b): return a+b",
+          "time_seconds": 7.0,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Fix this Python code: for i in range(10): print i",
+          "time_seconds": 9.41,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Review this function: def factorial(n): return n*f",
+          "time_seconds": 16.14,
+          "status": "\u2705 Success"
+        }
+      ]
+    },
+    {
+      "pipeline": "job",
+      "avg_time": 15.75,
+      "min_time": 9.74,
+      "max_time": 18.94,
+      "queries_tested": 3,
+      "detailed": [
+        {
+          "query": "Help me apply for ML Engineer job. I know Python a",
+          "time_seconds": 9.74,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Write cover letter for Data Scientist role",
+          "time_seconds": 18.57,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Help me prepare for Google interview",
+          "time_seconds": 18.94,
+          "status": "\u2705 Success"
+        }
+      ]
+    },
+    {
+      "pipeline": "general",
+      "avg_time": 1.75,
+      "min_time": 1.24,
+      "max_time": 2.04,
+      "queries_tested": 3,
+      "detailed": [
+        {
+          "query": "Who is Elon Musk?",
+          "time_seconds": 2.04,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "What is the capital of France?",
+          "time_seconds": 1.97,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Who invented the telephone?",
+          "time_seconds": 1.24,
+          "status": "\u2705 Success"
+        }
+      ]
+    },
+    {
+      "pipeline": "langgraph",
+      "avg_time": 19.44,
+      "min_time": 14.39,
+      "max_time": 24.84,
+      "queries_tested": 3,
+      "detailed": [
+        {
+          "query": "What are the latest advancements in LLMs?",
+          "time_seconds": 14.39,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Explain quantum computing",
+          "time_seconds": 24.84,
+          "status": "\u2705 Success"
+        },
+        {
+          "query": "Research about blockchain technology",
+          "time_seconds": 19.1,
+          "status": "\u274c Failed: Error code: 404 - {'error': {'message': 'The model"
+        }
+      ]
+    }
+  ],
+  "fastest": "general",
+  "slowest": "research"
+}

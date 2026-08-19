@@ -1,0 +1,368 @@
+{
+  "timestamp": "09-08-2026 14:01",
+  "total_queries": 50,
+  "correct": 44,
+  "accuracy": 88.0,
+  "avg_response_time_ms": 1461.43,
+  "min_response_time_ms": 271.65,
+  "max_response_time_ms": 5777.46,
+  "domain_accuracy": {
+    "research": 100.0,
+    "stock": 100.0,
+    "code": 100.0,
+    "job": 90.0,
+    "general": 50.0
+  },
+  "detailed_results": [
+    {
+      "query": "What are the latest advancements in LLMs?...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 1717.29
+    },
+    {
+      "query": "Explain quantum computing...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 543.24
+    },
+    {
+      "query": "What is reinforcement learning?...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 333.12
+    },
+    {
+      "query": "Research about climate change...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 502.78
+    },
+    {
+      "query": "Tell me about blockchain technology...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 616.51
+    },
+    {
+      "query": "What is the future of robotics?...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 271.65
+    },
+    {
+      "query": "Explain neural networks in detail...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 333.13
+    },
+    {
+      "query": "Research about CRISPR gene editing...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 272.14
+    },
+    {
+      "query": "What are transformer models?...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 483.71
+    },
+    {
+      "query": "Explain deep learning applications...",
+      "expected": "research",
+      "predicted": "research",
+      "correct": true,
+      "response_time_ms": 326.14
+    },
+    {
+      "query": "Analyse AAPL stock for me...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 814.13
+    },
+    {
+      "query": "Should I invest in Tesla?...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 1264.17
+    },
+    {
+      "query": "What is the current price of Google stock?...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 2354.26
+    },
+    {
+      "query": "Analyse Microsoft stock...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 1690.61
+    },
+    {
+      "query": "Is Amazon stock a good buy?...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 622.98
+    },
+    {
+      "query": "Stock analysis of Netflix...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 659.08
+    },
+    {
+      "query": "What is TSLA stock doing today?...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 1195.07
+    },
+    {
+      "query": "Analyse Meta stock for me...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 506.15
+    },
+    {
+      "query": "Should I buy Nvidia stock?...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 296.01
+    },
+    {
+      "query": "Give me stock analysis of Apple...",
+      "expected": "stock",
+      "predicted": "stock",
+      "correct": true,
+      "response_time_ms": 796.91
+    },
+    {
+      "query": "Review this Python code: def add(a,b): return a+b...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 283.19
+    },
+    {
+      "query": "Debug this code: print(hello world)...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 410.57
+    },
+    {
+      "query": "Review my JavaScript function...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 622.33
+    },
+    {
+      "query": "Fix this Python error: IndexError...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 567.17
+    },
+    {
+      "query": "Improve this sorting algorithm...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 399.4
+    },
+    {
+      "query": "Review this SQL query...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 340.19
+    },
+    {
+      "query": "Debug my React component...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 2742.33
+    },
+    {
+      "query": "Code review: for i in range(10): print i...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 459.08
+    },
+    {
+      "query": "Fix this Python function...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 308.48
+    },
+    {
+      "query": "Review this machine learning code...",
+      "expected": "code",
+      "predicted": "code",
+      "correct": true,
+      "response_time_ms": 699.4
+    },
+    {
+      "query": "Help me apply for ML Engineer job...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 564.64
+    },
+    {
+      "query": "Write a cover letter for Data Scientist role...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 399.7
+    },
+    {
+      "query": "I need help with my resume for software engineer...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 2574.83
+    },
+    {
+      "query": "Help me prepare for Google interview...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 2529.67
+    },
+    {
+      "query": "Write cover letter for AI researcher position...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 3711.77
+    },
+    {
+      "query": "My resume needs updating for data analyst role...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 2591.51
+    },
+    {
+      "query": "Help me apply for this Python developer job...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 4546.98
+    },
+    {
+      "query": "Prepare me for Amazon interview...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 565.81
+    },
+    {
+      "query": "I want to apply for NLP engineer position...",
+      "expected": "job",
+      "predicted": "job",
+      "correct": true,
+      "response_time_ms": 3112.82
+    },
+    {
+      "query": "Help with job application for ML researcher...",
+      "expected": "job",
+      "predicted": "research",
+      "correct": false,
+      "response_time_ms": 3467.87
+    },
+    {
+      "query": "Who is Elon Musk?...",
+      "expected": "general",
+      "predicted": "general",
+      "correct": true,
+      "response_time_ms": 4179.02
+    },
+    {
+      "query": "What is the capital of France?...",
+      "expected": "general",
+      "predicted": "general",
+      "correct": true,
+      "response_time_ms": 463.43
+    },
+    {
+      "query": "Tell me a joke...",
+      "expected": "general",
+      "predicted": "general",
+      "correct": true,
+      "response_time_ms": 2766.99
+    },
+    {
+      "query": "What is photosynthesis?...",
+      "expected": "general",
+      "predicted": "research",
+      "correct": false,
+      "response_time_ms": 5777.46
+    },
+    {
+      "query": "Who invented the telephone?...",
+      "expected": "general",
+      "predicted": "general",
+      "correct": true,
+      "response_time_ms": 886.49
+    },
+    {
+      "query": "What is the speed of light?...",
+      "expected": "general",
+      "predicted": "research",
+      "correct": false,
+      "response_time_ms": 1317.41
+    },
+    {
+      "query": "Explain gravity simply...",
+      "expected": "general",
+      "predicted": "general",
+      "correct": true,
+      "response_time_ms": 4477.68
+    },
+    {
+      "query": "What is the tallest mountain?...",
+      "expected": "general",
+      "predicted": "research",
+      "correct": false,
+      "response_time_ms": 591.07
+    },
+    {
+      "query": "Who wrote Harry Potter?...",
+      "expected": "general",
+      "predicted": "research",
+      "correct": false,
+      "response_time_ms": 3398.39
+    },
+    {
+      "query": "What is DNA?...",
+      "expected": "general",
+      "predicted": "research",
+      "correct": false,
+      "response_time_ms": 2716.78
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "timestamp": "11-08-2026 12:59",
+  "total_tests": 3,
+  "our_wins": 1,
+  "baseline_wins": 2,
+  "win_percentage": 33.3,
+  "avg_baseline_score": 8.17,
+  "avg_our_score": 6.75,
+  "improvement_percentage": -17.4,
+  "results": [
+    {
+      "domain": "research",
+      "query": "What are the latest advancements in LLMs?",
+      "baseline_time": 2.99,
+      "our_time": 6.24,
+      "baseline_score": 8.5,
+      "our_score": 5.0,
+      "baseline_words": 489,
+      "our_words": 608,
+      "winner": "A",
+      "reason": "Response A provides more detailed and relevant information about the latest advancements in LLMs.",
+      "detailed_scores": {
+        "A": {
+          "completeness": 8,
+          "structure": 9,
+          "accuracy": 9,
+          "usefulness": 8
+        },
+        "B": {
+          "completeness": 2,
+          "structure": 8,
+          "accuracy": 6,
+          "usefulness": 4
+        },
+        "winner": "A",
+        "reason": "Response A provides more detailed and relevant information about the latest advancements in LLMs."
+      }
+    },
+    {
+      "domain": "stock",
+      "query": "Analyse AAPL stock for me",
+      "baseline_time": 3.25,
+      "our_time": 2.76,
+      "baseline_score": 7.5,
+      "our_score": 8.5,
+      "baseline_words": 629,
+      "our_words": 478,
+      "winner": "B",
+      "reason": "Response B provides a more detailed and structured analysis, making it more useful for the user.",
+      "detailed_scores": {
+        "A": {
+          "completeness": 6,
+          "structure": 8,
+          "accuracy": 9,
+          "usefulness": 7
+        },
+        "B": {
+          "completeness": 8,
+          "structure": 9,
+          "accuracy": 9,
+          "usefulness": 8
+        },
+        "winner": "B",
+        "reason": "Response B provides a more detailed and structured analysis, making it more useful for the user."
+      }
+    },
+    {
+      "domain": "general",
+      "query": "Who is Elon Musk?",
+      "baseline_time": 1.24,
+      "our_time": 1.18,
+      "baseline_score": 8.5,
+      "our_score": 6.75,
+      "baseline_words": 278,
+      "our_words": 234,
+      "winner": "A",
+      "reason": "Response A provides more detailed and specific information about Elon Musk's achievements and companies.",
+      "detailed_scores": {
+        "A": {
+          "completeness": 8,
+          "structure": 9,
+          "accuracy": 9,
+          "usefulness": 8
+        },
+        "B": {
+          "completeness": 6,
+          "structure": 7,
+          "accuracy": 8,
+          "usefulness": 6
+        },
+        "winner": "A",
+        "reason": "Response A provides more detailed and specific information about Elon Musk's achievements and companies."
+      }
+    }
+  ]
+}
