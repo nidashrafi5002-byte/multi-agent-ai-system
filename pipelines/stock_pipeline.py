@@ -74,7 +74,9 @@ def run_stock_pipeline(user_query: str) -> str:
     """
 
     analyze_response = create_chat_completion(
-        messages=[{"role": "user", "content": analyze_prompt}]
+        messages=[{"role": "user", "content": analyze_prompt}],
+        model="openai/gpt-oss-20b",
+        max_tokens=800
     )
     analysis = analyze_response.choices[0].message.content.strip()
     print("✅ Analysis done!")
@@ -301,7 +303,7 @@ def get_news_sentiment(company_name: str, symbol: str) -> dict:
 
         from tools.groq_utils import client
         sentiment_response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             messages=[{"role": "user", "content": sentiment_prompt}]
         )
 

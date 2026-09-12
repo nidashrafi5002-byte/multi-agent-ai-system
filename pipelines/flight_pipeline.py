@@ -5,11 +5,10 @@ import requests
 import folium
 from dotenv import load_dotenv
 from datetime import datetime, timezone
-from groq import Groq
+from tools.groq_utils import create_chat_completion, client
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 AVIATION_KEY = os.getenv("AVIATIONSTACK_API_KEY")
 
 # ---------------------------------------------------------------------------
@@ -56,26 +55,42 @@ def clean_time(t: str) -> str:
 # ---------------------------------------------------------------------------
 def get_flight_data(flight_number: str) -> dict:
     """Fetch live flight data from Aviationstack."""
+    clean_flight = re.sub(r"[^A-Za-z0-9]", "", str(flight_number)).upper()
+    if not clean_flight or clean_flight == "UNKNOWN":
+        return None
+
     url = "http://api.aviationstack.com/v1/flights"
     params = {
         "access_key": AVIATION_KEY,
-        "flight_iata": flight_number.upper()
+        "flight_iata": clean_flight
     }
     try:
         response = requests.get(url, params=params, timeout=10)
         data = response.json()
         if data.get("data") and len(data["data"]) > 0:
             return data["data"][0]
+
+        # Fallback to flight_icao
+        params_icao = {
+            "access_key": AVIATION_KEY,
+            "flight_icao": clean_flight
+        }
+        resp_icao = requests.get(url, params=params_icao, timeout=10)
+        data_icao = resp_icao.json()
+        if data_icao.get("data") and len(data_icao["data"]) > 0:
+            return data_icao["data"][0]
+
         return None
     except Exception as e:
         print(f"AviationStack error: {e}")
         return None
 
 
-def get_live_position(flight_number: str) -> dict:
+def get_live_position(flight_number: str, icao24: str = "") -> dict:
     """Get live position from OpenSky Network."""
     try:
         callsign = flight_number.upper().replace(" ", "")
+        aircraft_icao24 = str(icao24 or "").strip().lower()
         url = "https://opensky-network.org/api/states/all"
         response = requests.get(url, timeout=15)
         data = response.json()
@@ -84,7 +99,9 @@ def get_live_position(flight_number: str) -> dict:
                 if not state[1]:
                     continue
                 state_callsign = str(state[1]).strip().upper()
-                if (callsign in state_callsign or
+                state_icao24 = str(state[0] or "").strip().lower()
+                if (state_icao24 == aircraft_icao24 or
+                    callsign in state_callsign or
                         state_callsign in callsign or
                         callsign[:4] in state_callsign):
                     if state[6] and state[5]:
@@ -125,7 +142,7 @@ def get_weather(lat: float, lon: float, label: str = "") -> dict:
         }
         resp = requests.get(url, params=params, timeout=10)
         if resp.status_code != 200:
-            return {"available": False}
+            return {"available": False, "reason": f"Weather service returned HTTP {resp.status_code}."}
 
         data = resp.json()
         cw = data.get("current_weather", {})
@@ -145,7 +162,7 @@ def get_weather(lat: float, lon: float, label: str = "") -> dict:
         }
     except Exception as e:
         print(f"Weather error ({label}): {e}")
-        return {"available": False}
+        return {"available": False, "reason": "Weather service could not be reached."}
 
 
 def _haversine_km(lat1, lon1, lat2, lon2) -> float:
@@ -253,11 +270,13 @@ def calculate_countdown(arr_estimated_str: str) -> dict:
 def extract_aircraft_details(flight_data: dict) -> dict:
     """Extract aircraft details."""
     aircraft = flight_data.get("aircraft") or {}
+    def value_or_unavailable(value):
+        return value if value not in (None, "", "null", "NULL") else "Not Available"
     return {
-        "registration": aircraft.get("registration", "N/A"),
-        "iata": aircraft.get("iata", "N/A"),
-        "icao": aircraft.get("icao", "N/A"),
-        "icao24": aircraft.get("icao24", "N/A"),
+        "registration": value_or_unavailable(aircraft.get("registration")),
+        "iata": value_or_unavailable(aircraft.get("iata")),
+        "icao": value_or_unavailable(aircraft.get("icao")),
+        "icao24": value_or_unavailable(aircraft.get("icao24")),
     }
 
 
@@ -327,9 +346,9 @@ def generate_ai_summary(flight_data, progress,
     Respond in plain text, no markdown.
     """
     try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": prompt}]
+        response = create_chat_completion(
+            messages=[{"role": "user", "content": prompt}],
+            timeout=10
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -385,7 +404,7 @@ def create_flight_map(flight_data: dict) -> folium.Map:
     flight_map = folium.Map(
         location=[center_lat, center_lon],
         zoom_start=zoom,
-        tiles="CartoDB positron"
+        tiles="OpenStreetMap"
     )
 
     # Departure marker
@@ -495,19 +514,52 @@ def run_flight_pipeline(user_query: str) -> tuple:
 
     # Step 1: Extract flight number
     print("\n🧠 Step 1: Extracting flight number...")
-    extract_prompt = f"""
-    Extract the flight number from this query.
-    Query: {user_query}
-    Reply with ONLY the flight number like: AI101, EK202, 6E456
-    Nothing else. Just the flight number.
-    If no flight number found, reply: UNKNOWN
-    """
-    extract_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": extract_prompt}]
-    )
-    flight_number = extract_response.choices[0].message.content.strip()
+    flight_number = None
+    match = re.search(r'\b([A-Za-z0-9]{2,3})\s*[- ]?\s*(\d{1,4})\b', user_query)
+    if match:
+        flight_number = f"{match.group(1).upper()}{match.group(2)}"
+    else:
+        airline_codes = {
+            "indigo": "6E", "air india": "AI", "spicejet": "SG", "vistara": "UK",
+            "emirates": "EK", "qatar": "QR", "british airways": "BA", "united": "UA",
+            "american": "AA", "delta": "DL", "lufthansa": "LH", "singapore": "SQ"
+        }
+        for al_name, al_code in airline_codes.items():
+            if al_name in user_query.lower():
+                num_match = re.search(r'\b(\d{1,4})\b', user_query)
+                if num_match:
+                    flight_number = f"{al_code}{num_match.group(1)}"
+                    break
+
+    if not flight_number:
+        extract_prompt = f"""
+        Extract the flight number from this query.
+        Query: {user_query}
+        Reply with ONLY the flight number like: AI101, EK202, 6E456
+        Nothing else. Just the flight number.
+        If no flight number found, reply: UNKNOWN
+        """
+        try:
+            extract_response = create_chat_completion(
+                messages=[{"role": "user", "content": extract_prompt}],
+                timeout=10
+            )
+            raw_fn = extract_response.choices[0].message.content.strip()
+            flight_number = re.sub(r"[^A-Za-z0-9]", "", raw_fn).upper()
+        except Exception as e:
+            print(f"Extraction error: {e}")
+            flight_number = "UNKNOWN"
+
+    flight_number = re.sub(r"[^A-Za-z0-9]", "", str(flight_number)).upper()
     print(f"✅ Flight number: {flight_number}")
+
+    if not flight_number or flight_number == "UNKNOWN":
+        return (
+            "Please provide a flight number so I can create its map. "
+            "For example: `Track flight AI101` or `Track EK202`.",
+            None,
+            None,
+        )
 
     # Step 2: Fetch live data
     print("\n✈️  Step 2: Fetching live flight data...")
@@ -521,11 +573,15 @@ def run_flight_pipeline(user_query: str) -> tuple:
         Note that live data is currently unavailable.
         Provide general information about this flight or airline.
         """
-        ai_response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": ai_prompt}]
-        )
-        return ai_response.choices[0].message.content.strip(), None, None
+        try:
+            ai_response = create_chat_completion(
+                messages=[{"role": "user", "content": ai_prompt}],
+                timeout=10
+            )
+            report = ai_response.choices[0].message.content.strip()
+        except Exception as e:
+            report = f"Live flight data is currently unavailable for {flight_number}."
+        return report, None, None
 
     print("✅ Live data fetched!")
 
@@ -537,7 +593,8 @@ def run_flight_pipeline(user_query: str) -> tuple:
 
     # Step 3: Live position
     print(f"\n📍 Step 3: Fetching live position...")
-    live_position = get_live_position(actual_flight_number)
+    aircraft_icao24 = (flight_data.get("aircraft") or {}).get("icao24", "")
+    live_position = get_live_position(actual_flight_number, aircraft_icao24)
     if live_position.get("latitude"):
         print("✅ Live position found!")
         flight_data["live"] = live_position

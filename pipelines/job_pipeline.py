@@ -25,7 +25,7 @@ def run_job_pipeline(user_query: str) -> str:
     """
 
     check = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": check_prompt}]
     )
 
@@ -69,7 +69,7 @@ My skills: Python, PyTorch, FastAPI"
     """
 
     plan_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": plan_prompt}]
     )
     plan = plan_response.choices[0].message.content.strip()
@@ -93,7 +93,7 @@ My skills: Python, PyTorch, FastAPI"
     """
 
     gap_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": gap_prompt}]
     )
     gap_analysis = gap_response.choices[0].message.content.strip()
@@ -116,7 +116,7 @@ My skills: Python, PyTorch, FastAPI"
     """
 
     tailor_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": tailor_prompt}]
     )
     tailored_resume = tailor_response.choices[0].message.content.strip()
@@ -141,7 +141,7 @@ My skills: Python, PyTorch, FastAPI"
     """
 
     cover_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": cover_prompt}]
     )
     cover_letter = cover_response.choices[0].message.content.strip()
@@ -162,7 +162,7 @@ My skills: Python, PyTorch, FastAPI"
     """
 
     prep_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         messages=[{"role": "user", "content": prep_prompt}]
     )
     interview_prep = prep_response.choices[0].message.content.strip()
