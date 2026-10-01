@@ -87,3 +87,17 @@ export async function sendChat(message: string, pipeline: PipelineId = 'auto'): 
     return fallbackResponse(message, pipeline, isTimeout);
   }
 }
+
+export async function analyzeFile(file: File): Promise<{ success: boolean; file_type: string; filename: string; text?: string; image_data?: string; pages?: number; paragraphs?: number; size?: string; format?: string }> {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(`${API_BASE}/api/analyze-file`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error?.response?.data?.detail || 'Failed to analyze file');
+  }
+}

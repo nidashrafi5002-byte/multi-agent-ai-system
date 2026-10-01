@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
 import asyncio
 import re
+import io
 from time import perf_counter
 from agents.router import route_query
 from pipelines.research_pipeline import run_research_pipeline
@@ -80,3 +81,95 @@ async def chat(req: ChatRequest):
     else:
         output = await asyncio.to_thread(run_general_pipeline, req.message)
         return with_log({"domain": domain, "output": output})
+
+
+@router.post("/api/analyze-file")
+async def analyze_file(file: UploadFile = File(...)):
+    """Analyze uploaded file (PDF, DOCX, or image) and return extracted content."""
+    try:
+        contents = await file.read()
+        filename = file.filename or "uploaded_file"
+        filename_lower = filename.lower()
+
+        # Handle PDF files
+        if filename_lower.endswith(".pdf"):
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(io.BytesIO(contents))
+                text = ""
+                for page in reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+                return {
+                    "success": True,
+                    "file_type": "pdf",
+                    "filename": filename,
+                    "text": text.strip(),
+                    "pages": len(reader.pages)
+                }
+            except ImportError:
+                raise HTTPException(status_code=500, detail="pypdf is required for PDF processing")
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Failed to read PDF: {str(e)}")
+
+        # Handle DOCX files
+        elif filename_lower.endswith(".docx"):
+            try:
+                import docx
+                doc = docx.Document(io.BytesIO(contents))
+                text = "\n".join([para.text for para in doc.paragraphs if para.text])
+                return {
+                    "success": True,
+                    "file_type": "docx",
+                    "filename": filename,
+                    "text": text.strip(),
+                    "paragraphs": len(doc.paragraphs)
+                }
+            except ImportError:
+                raise HTTPException(status_code=500, detail="python-docx is required for DOCX processing")
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Failed to read DOCX: {str(e)}")
+
+        # Handle TXT files
+        elif filename_lower.endswith(".txt"):
+            text = contents.decode("utf-8", errors="ignore")
+            return {
+                "success": True,
+                "file_type": "txt",
+                "filename": filename,
+                "text": text.strip()
+            }
+
+        # Handle image files
+        elif filename_lower.endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
+            try:
+                from PIL import Image
+                import base64
+                image = Image.open(io.BytesIO(contents))
+                # Convert to base64 for display
+                img_byte_arr = io.BytesIO()
+                image.save(img_byte_arr, format='PNG')
+                img_byte_arr = img_byte_arr.getvalue()
+                img_base64 = base64.b64encode(img_byte_arr).decode('utf-8')
+                
+                return {
+                    "success": True,
+                    "file_type": "image",
+                    "filename": filename,
+                    "image_data": img_base64,
+                    "size": f"{image.width}x{image.height}",
+                    "format": image.format
+                }
+            except ImportError:
+                raise HTTPException(status_code=500, detail="Pillow is required for image processing")
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Failed to read image: {str(e)}")
+
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file format. Please upload PDF, DOCX, TXT, or image files.")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File analysis failed: {str(e)}")
