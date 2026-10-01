@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, Bot, ChevronRight, Cpu, Menu, Settings, Sparkles, UserCheck, X } from 'lucide-react';
+import { Activity, Bot, ChevronRight, Cpu, Menu, Settings, Sparkles, X } from 'lucide-react';
 import { checkBackendHealth } from '../../api/chatService';
 
 interface SidebarProps {
@@ -12,7 +12,6 @@ interface SidebarProps {
 const links = [
   { path: '/', label: 'Home', icon: Sparkles },
   { path: '/chat', label: 'Chat', icon: Bot },
-  { path: '/interview', label: 'AI Interviewer', icon: UserCheck },
   { path: '/agents', label: 'Agent Flow', icon: Cpu },
   { path: '/flights', label: 'Flight Tracker', icon: Activity },
   { path: '/stocks', label: 'Stock Analysis', icon: Activity },
