@@ -1,0 +1,94 @@
+.map-panel {
+  position: relative;
+  overflow: hidden;
+  background: #0b1324;
+  border-color: #223c70;
+  box-shadow: 0 0 0 1px rgba(58, 111, 255, .08), 0 20px 45px rgba(0, 0, 0, .28);
+}
+
+.map-panel::after {
+  content: '';
+  position: absolute;
+  inset: 54px 0 0;
+  z-index: 400;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(31, 107, 255, .08), transparent 38%, rgba(0, 229, 255, .06));
+  mix-blend-mode: screen;
+}
+
+.map-toolbar {
+  position: relative;
+  z-index: 500;
+  height: 58px;
+  padding: 0 18px;
+  color: #a6caff;
+  background: linear-gradient(90deg, #111e3c, #10182d);
+  border-bottom: 1px solid #294b8d;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.map-toolbar span:last-child {
+  padding: 6px 9px;
+  color: #83e2ef;
+  background: rgba(0, 210, 230, .09);
+  border: 1px solid rgba(0, 210, 230, .22);
+  border-radius: 999px;
+}
+
+.map-panel .leaflet-container {
+  position: relative;
+  z-index: 1;
+  height: calc(100% - 58px);
+  border-radius: 0;
+  filter: saturate(1.2) contrast(1.05);
+}
+
+.map-panel .leaflet-tile-pane {
+  opacity: .88;
+  filter: brightness(.58) saturate(.72) hue-rotate(165deg) contrast(1.08);
+}
+
+.map-panel .leaflet-overlay-pane path {
+  filter: drop-shadow(0 0 4px rgba(100, 181, 246, .55));
+}
+
+.map-panel .leaflet-popup-content-wrapper,
+.map-panel .leaflet-popup-tip {
+  color: #dceaff;
+  background: #101b33;
+  border: 1px solid #31599c;
+}
+
+.map-panel .leaflet-popup-content {
+  margin: 11px 13px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.plane-marker {
+  display: grid;
+  place-items: center;
+  width: 38px !important;
+  height: 38px !important;
+  color: #fff;
+  background: radial-gradient(circle, #4d8dff 0 35%, #2455bd 36% 62%, rgba(36, 85, 189, .18) 63% 100%);
+  border: 1px solid #b7e8ff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 7px rgba(58, 111, 255, .12), 0 0 22px rgba(0, 205, 255, .85);
+  animation: aircraft-pulse 2.4s ease-in-out infinite;
+}
+
+.plane-marker-core {
+  display: block;
+  color: #fff;
+  font-size: 18px;
+  filter: drop-shadow(0 1px 2px #071125);
+  transform: rotate(45deg);
+}
+
+@keyframes aircraft-pulse {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(58, 111, 255, .1), 0 0 18px rgba(0, 205, 255, .62); }
+  50% { box-shadow: 0 0 0 11px rgba(58, 111, 255, 0), 0 0 28px rgba(0, 205, 255, .9); }
+}
