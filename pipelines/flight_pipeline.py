@@ -68,7 +68,22 @@ def get_flight_data(flight_number: str) -> dict:
         response = requests.get(url, params=params, timeout=10)
         data = response.json()
         if data.get("data") and len(data["data"]) > 0:
-            return data["data"][0]
+            records = data["data"]
+            # Prefer the requested operating flight, then a matching codeshare.
+            exact = next(
+                (record for record in records
+                 if str((record.get("flight") or {}).get("iata", "")).upper() == clean_flight),
+                None,
+            )
+            if exact:
+                return exact
+            codeshare = next(
+                (record for record in records
+                 if str(((record.get("flight") or {}).get("codeshared") or {}).get("flight_iata", "")).upper() == clean_flight),
+                None,
+            )
+            if codeshare:
+                return codeshare
 
         # Fallback to flight_icao
         params_icao = {
@@ -297,7 +312,8 @@ def extract_airport_details(endpoint: dict) -> dict:
 
 
 def generate_ai_summary(flight_data, progress,
-                         dep_delay, arr_delay, countdown) -> str:
+                         dep_delay, arr_delay, countdown,
+                         requested_flight: str = "") -> str:
     """Generate AI summary of flight status."""
     dep = flight_data.get("departure") or {}
     arr = flight_data.get("arrival") or {}
@@ -332,10 +348,18 @@ def generate_ai_summary(flight_data, progress,
     else:
         eta_text = "ETA data is unavailable."
 
+    display_flight = requested_flight or flight_info.get('iata', 'N/A')
+    operating_flight = flight_info.get('iata', 'N/A')
+    operating_note = (
+        f"The operating flight is {operating_flight}; the requested flight is a codeshare."
+        if requested_flight and operating_flight != requested_flight
+        else ""
+    )
     prompt = f"""
     Write a concise, friendly 3-4 sentence summary for a traveler.
 
-    Flight: {flight_info.get('iata', 'N/A')} by {airline.get('name', 'N/A')}
+    Flight: {display_flight} by {airline.get('name', 'N/A')}
+    {operating_note}
     From: {dep.get('airport', 'N/A')} → To: {arr.get('airport', 'N/A')}
     Status: {status.upper()}
     {progress_text}
@@ -404,24 +428,53 @@ def create_flight_map(flight_data: dict) -> folium.Map:
     flight_map = folium.Map(
         location=[center_lat, center_lon],
         zoom_start=zoom,
-        tiles="OpenStreetMap"
+        tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     )
+
+    # Inject dark overlay + popup styling
+    map_css = """
+    <style>
+    .leaflet-tile { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+    .leaflet-container { background: #0d0d1a; }
+    .leaflet-popup-content-wrapper {
+        background: #1a1a2e !important;
+        border: 1px solid #FF6B35 !important;
+        border-radius: 10px !important;
+        color: #e0e0e0 !important;
+        box-shadow: 0 4px 20px rgba(255,107,53,0.3) !important;
+    }
+    .leaflet-popup-tip { background: #1a1a2e !important; }
+    .leaflet-popup-content { margin: 10px 14px; color: #e0e0e0; }
+    .leaflet-control-zoom a {
+        background: #1a1a2e !important;
+        color: #FF6B35 !important;
+        border-color: #333 !important;
+    }
+    .leaflet-control-attribution {
+        background: rgba(0,0,0,0.5) !important;
+        color: #555 !important;
+        font-size: 9px !important;
+    }
+    </style>
+    """
+    flight_map.get_root().html.add_child(folium.Element(map_css))
 
     # Departure marker
     dep_name = departure.get('airport', dep_iata or 'Departure Airport')
     folium.Marker(
         location=[dep_lat, dep_lon],
         popup=folium.Popup(f"""
-            <div style="font-family:Arial; min-width:180px;">
-            <b style="color:#00aa44;">🛫 DEPARTURE</b><br>
-            <b>{dep_name}</b><br>
-            <hr style="margin:4px 0;">
-            IATA: <b>{dep_iata}</b><br>
-            Scheduled: <b>{dep_time}</b><br>
-            Coordinates: {round(dep_lat,2)}°, {round(dep_lon,2)}°
+            <div style="font-family:Arial;min-width:190px;color:#e0e0e0">
+            <b style="color:#00e676;font-size:13px">🛫 DEPARTURE</b><br>
+            <span style="font-size:12px;color:#fff">{dep_name}</span><br>
+            <hr style="margin:5px 0;border-color:#333">
+            <span style="color:#aaa">IATA:</span> <b style="color:#FF6B35">{dep_iata}</b><br>
+            <span style="color:#aaa">Scheduled:</span> <b>{dep_time}</b><br>
+            <span style="color:#aaa">Coords:</span> {round(dep_lat,2)}°, {round(dep_lon,2)}°
             </div>
-        """, max_width=220),
-        tooltip=f"🛫 {dep_iata} — Click for details",
+        """, max_width=230),
+        tooltip=folium.Tooltip(f"🛫 {dep_iata} — Departure", style="background:#1a1a2e;color:#e0e0e0;border:1px solid #FF6B35;border-radius:6px"),
         icon=folium.Icon(color="green", icon="plane", prefix="fa")
     ).add_to(flight_map)
 
@@ -430,73 +483,79 @@ def create_flight_map(flight_data: dict) -> folium.Map:
     folium.Marker(
         location=[arr_lat, arr_lon],
         popup=folium.Popup(f"""
-            <div style="font-family:Arial; min-width:180px;">
-            <b style="color:#cc2200;">🛬 ARRIVAL</b><br>
-            <b>{arr_name}</b><br>
-            <hr style="margin:4px 0;">
-            IATA: <b>{arr_iata}</b><br>
-            Scheduled: <b>{arr_time}</b><br>
-            Coordinates: {round(arr_lat,2)}°, {round(arr_lon,2)}°
+            <div style="font-family:Arial;min-width:190px;color:#e0e0e0">
+            <b style="color:#ff5252;font-size:13px">🛬 ARRIVAL</b><br>
+            <span style="font-size:12px;color:#fff">{arr_name}</span><br>
+            <hr style="margin:5px 0;border-color:#333">
+            <span style="color:#aaa">IATA:</span> <b style="color:#FF6B35">{arr_iata}</b><br>
+            <span style="color:#aaa">Scheduled:</span> <b>{arr_time}</b><br>
+            <span style="color:#aaa">Coords:</span> {round(arr_lat,2)}°, {round(arr_lon,2)}°
             </div>
-        """, max_width=220),
-        tooltip=f"🛬 {arr_iata} — Click for details",
+        """, max_width=230),
+        tooltip=folium.Tooltip(f"🛬 {arr_iata} — Arrival", style="background:#1a1a2e;color:#e0e0e0;border:1px solid #FF6B35;border-radius:6px"),
         icon=folium.Icon(color="red", icon="plane", prefix="fa")
     ).add_to(flight_map)
 
     # Planned route (dashed orange)
     folium.PolyLine(
         locations=[[dep_lat, dep_lon], [arr_lat, arr_lon]],
-        color="#FF6B35", weight=2, opacity=0.5,
-        dash_array="10", tooltip="Planned Route"
+        color="#FF6B35", weight=2, opacity=0.4,
+        dash_array="8 6", tooltip="Planned Route"
     ).add_to(flight_map)
 
     if live_lat and live_lon:
-        # Completed route (solid blue)
+        # Completed route (glowing cyan)
         folium.PolyLine(
             locations=[[dep_lat, dep_lon], [live_lat, live_lon]],
-            color="#0066CC", weight=4, opacity=0.9,
+            color="#00e5ff", weight=4, opacity=0.9,
+            tooltip="Completed Route"
+        ).add_to(flight_map)
+        # Glow effect (wider, lower opacity)
+        folium.PolyLine(
+            locations=[[dep_lat, dep_lon], [live_lat, live_lon]],
+            color="#00e5ff", weight=10, opacity=0.15,
             tooltip="Completed Route"
         ).add_to(flight_map)
 
         # Remaining route (dashed gray)
         folium.PolyLine(
             locations=[[live_lat, live_lon], [arr_lat, arr_lon]],
-            color="#999999", weight=2, opacity=0.6,
-            dash_array="8", tooltip="Remaining Route"
+            color="#666666", weight=2, opacity=0.5,
+            dash_array="6 5", tooltip="Remaining Route"
         ).add_to(flight_map)
 
         # Live airplane icon
         folium.Marker(
             location=[live_lat, live_lon],
             popup=folium.Popup(f"""
-                <div style="font-family:Arial; min-width:180px;">
-                <b style="color:#0066cc;">✈️ LIVE POSITION</b><br>
-                <hr style="margin:4px 0;">
-                Latitude: <b>{live_lat}°</b><br>
-                Longitude: <b>{live_lon}°</b><br>
-                Altitude: <b>{altitude} m</b><br>
-                Speed: <b>{speed} km/h</b><br>
-                <hr style="margin:4px 0;">
-                <small>Updated in real-time</small>
+                <div style="font-family:Arial;min-width:190px;color:#e0e0e0">
+                <b style="color:#00e5ff;font-size:13px">✈️ LIVE POSITION</b><br>
+                <hr style="margin:5px 0;border-color:#333">
+                <span style="color:#aaa">Latitude:</span> <b>{live_lat}°</b><br>
+                <span style="color:#aaa">Longitude:</span> <b>{live_lon}°</b><br>
+                <span style="color:#aaa">Altitude:</span> <b style="color:#FF6B35">{altitude} m</b><br>
+                <span style="color:#aaa">Speed:</span> <b style="color:#FF6B35">{speed} km/h</b><br>
+                <hr style="margin:5px 0;border-color:#333">
+                <span style="color:#555;font-size:10px">🔴 Live tracking</span>
                 </div>
-            """, max_width=220),
-            tooltip=f"✈️ Live | Alt: {altitude}m | {speed}km/h",
+            """, max_width=230),
+            tooltip=folium.Tooltip(f"✈️ Live | {altitude}m | {speed}km/h", style="background:#1a1a2e;color:#00e5ff;border:1px solid #00e5ff;border-radius:6px"),
             icon=folium.DivIcon(
-                html='<div style="font-size:28px;transform:rotate(45deg);'
-                     'filter:drop-shadow(2px 2px 2px rgba(0,0,0,0.5))">✈️</div>',
-                icon_size=(40, 40),
-                icon_anchor=(20, 20)
+                html='<div style="font-size:30px;transform:rotate(45deg);'
+                     'filter:drop-shadow(0 0 8px #00e5ff)">✈️</div>',
+                icon_size=(44, 44),
+                icon_anchor=(22, 22)
             )
         ).add_to(flight_map)
 
-        # Pulsing circle
+        # Pulsing glow circle
         folium.CircleMarker(
             location=[live_lat, live_lon],
-            radius=15,
-            color="#0066CC",
+            radius=18,
+            color="#00e5ff",
             fill=True,
-            fill_color="#0066CC",
-            fill_opacity=0.2,
+            fill_color="#00e5ff",
+            fill_opacity=0.15,
             weight=2,
             tooltip="Current Position"
         ).add_to(flight_map)
@@ -586,15 +645,16 @@ def run_flight_pipeline(user_query: str) -> tuple:
     print("✅ Live data fetched!")
 
     # Get actual flight number
+    operating_flight_number = flight_number
     actual_flight_number = flight_number
     fi = flight_data.get("flight") or {}
     if fi.get("iata"):
-        actual_flight_number = fi["iata"]
+        operating_flight_number = fi["iata"]
 
     # Step 3: Live position
     print(f"\n📍 Step 3: Fetching live position...")
     aircraft_icao24 = (flight_data.get("aircraft") or {}).get("icao24", "")
-    live_position = get_live_position(actual_flight_number, aircraft_icao24)
+    live_position = get_live_position(operating_flight_number, aircraft_icao24)
     if live_position.get("latitude"):
         print("✅ Live position found!")
         flight_data["live"] = live_position
@@ -652,13 +712,14 @@ def run_flight_pipeline(user_query: str) -> tuple:
     # Step 6: AI Summary
     print("\n🤖 Step 6: Generating AI summary...")
     ai_summary = generate_ai_summary(
-        flight_data, progress, dep_delay, arr_delay, countdown
+        flight_data, progress, dep_delay, arr_delay, countdown, flight_number
     )
     print("✅ AI summary ready!")
 
     # Enriched data
     enriched = {
         "flight_number": actual_flight_number,
+        "operating_flight_number": operating_flight_number,
         "airline": airline.get("name", "N/A"),
         "status": status,
         "flight_info": fi,
@@ -686,12 +747,17 @@ def run_flight_pipeline(user_query: str) -> tuple:
         "delayed": "🟠 DELAYED",
     }.get(status.lower(), "⚪ UNKNOWN")
 
+    operating_line = (
+        f"**Operating flight:** {operating_flight_number}\n\n"
+        if operating_flight_number != actual_flight_number else ""
+    )
     report = (
         f"## ✈️ Flight Tracking Report\n"
         f"**Generated:** {now}\n\n"
         f"**Flight:** {actual_flight_number} | "
         f"**Airline:** {airline.get('name', 'N/A')} | "
         f"**Status:** {status_label}\n\n"
+        f"{operating_line}"
         f"**Route:** {dep_details['name']} → {arr_details['name']}\n\n"
         f"**AI Summary:** {ai_summary}"
     )

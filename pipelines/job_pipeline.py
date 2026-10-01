@@ -88,7 +88,7 @@ My skills: Python, PyTorch, FastAPI"
     Provide:
     1. MATCHING SKILLS
     2. MISSING SKILLS
-    3. MATCH PERCENTAGE
+    3. MATCH PERCENTAGE — write as plain text only, example: "40% (2 out of 5 skills matched)". Do NOT use LaTeX, fractions, or math notation.
     4. QUICK TIPS
     """
 

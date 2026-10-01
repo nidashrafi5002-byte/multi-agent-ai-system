@@ -9,6 +9,15 @@ load_dotenv()
 def route_query(user_input: str, chat_history: list = None) -> dict:
     query_lower = user_input.lower().strip()
 
+    # Named literary and academic works need the grounded Research workflow,
+    # even when the user says "summarize" rather than "research".
+    specific_work = bool(
+        re.search(r"\b(poem|poetry|novel|book|play|study|paper|essay)\b", query_lower)
+        and re.search(r"\b(by|written by|authored by)\b", query_lower)
+    )
+    if specific_work:
+        return {"domain": "research", "query": user_input}
+
     # If this is clearly a follow-up in an ongoing conversation, keep it in general
     followup_starters = (
         "what about", "how about", "tell me more", "explain more", "why",

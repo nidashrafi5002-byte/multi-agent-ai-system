@@ -9,13 +9,14 @@ from datetime import datetime
 DB_PATH = os.path.join(os.path.dirname(__file__), "history.sqlite3")
 
 DOMAIN_ICONS = {
-    "research": "🔬",
-    "stock":    "📈",
-    "code":     "💻",
-    "job":      "💼",
-    "flight":   "✈️",
-    "image":    "🎨",
-    "general":  "💬",
+    "research":  "🔬",
+    "stock":     "📈",
+    "code":      "💻",
+    "job":       "💼",
+    "flight":    "✈️",
+    "image":     "🎨",
+    "general":   "💬",
+    "interview": "🎤",
 }
 
 

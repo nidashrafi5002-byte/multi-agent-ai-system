@@ -39,25 +39,12 @@ def generate_report(written_report: dict) -> str:
 
     now = datetime.now().strftime("%d-%m-%Y %H:%M")
 
-    final_report = f"""
-{'='*60}
-        RESEARCH REPORT
-{'='*60}
-Topic    : {written_report['original_query']}
-Date     : {now}
-{'='*60}
-
-RESEARCH PLAN:
-{written_report['plan']}
-
-{'='*60}
+    final_report = f"""## Research Brief: {written_report['original_query']}
 
 {written_report['written_report']}
 
-{'='*60}
-QUALITY REVIEW:
-{review}
-{'='*60}
-    """
+**Quality check:** {review}
+**Generated:** {now}
+"""
 
     return final_report

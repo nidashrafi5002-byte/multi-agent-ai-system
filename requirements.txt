@@ -1,5 +1,7 @@
 streamlit
 streamlit-folium
+fastapi
+uvicorn
 groq
 python-dotenv
 langgraph
@@ -10,3 +12,8 @@ folium
 plotly
 pandas
 yfinance
+google-search-results
+pypdf
+python-docx
+python-multipart
+numpy>=1.24.0

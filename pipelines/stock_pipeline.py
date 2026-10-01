@@ -70,13 +70,20 @@ def run_stock_pipeline(user_query: str) -> str:
     
     5. RECOMMENDATION
        Short term and long term recommendation
-       Risk level: Low / Medium / High
+         Include a Markdown table with exactly these columns:
+         Horizon | Recommendation | Risk Level
+         Every row must contain a non-empty risk level: Low, Medium, or High.
+         Do not leave the Risk Level column blank.
+
+    Complete every section before stopping. Do not end in the middle of a
+    table or sentence. Use the current date as context and do not present
+    old or unsupported prices, earnings, or dates as current facts.
     """
 
     analyze_response = create_chat_completion(
         messages=[{"role": "user", "content": analyze_prompt}],
         model="openai/gpt-oss-20b",
-        max_tokens=800
+        max_tokens=1600
     )
     analysis = analyze_response.choices[0].message.content.strip()
     print("✅ Analysis done!")
