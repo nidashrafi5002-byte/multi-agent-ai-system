@@ -1,5 +1,7 @@
 # MAIA - Multi-Agent Intelligence System
 
+**Built by Nida Fatima Ashrafi**
+
 A sophisticated multi-agent AI orchestration system built with LangGraph, featuring 7 specialized agents for various tasks including research, stock analysis, code review, job search, flight tracking, image generation, and general Q&A.
 
 ## 🌐 Live Demo
