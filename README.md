@@ -268,6 +268,7 @@ npm test
 | `GROQ_API_KEY` | Groq API key for LLM | Yes |
 | `SERPAPI_KEY` | SerpAPI key for web search | Yes |
 | `JWT_SECRET_KEY` | Secret key for JWT tokens | Yes |
+| `AVIATION_KEY` | Secret key for Aviation Map | Yes |
 
 ## 🤝 Contributing
 
