@@ -23,9 +23,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 # Database setup
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "memory", "auth.db")
-# For Render, use persistent storage
+# For Render, use /tmp directory (writable but not persistent)
 if os.path.exists('/opt/render/project'):
-    DB_PATH = '/opt/render/project/memory/auth.db'
+    DB_PATH = '/tmp/auth.db'
 
 
 def get_db():
@@ -35,9 +35,9 @@ def get_db():
 
 
 def init_db():
-    # Ensure directory exists
+    # Ensure directory exists (only for local development)
     db_dir = os.path.dirname(DB_PATH)
-    if db_dir and not os.path.exists(db_dir):
+    if db_dir and not os.path.exists(db_dir) and not DB_PATH.startswith('/tmp'):
         os.makedirs(db_dir, exist_ok=True)
     
     conn = get_db()
