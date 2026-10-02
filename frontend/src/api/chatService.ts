@@ -41,7 +41,7 @@ function fallbackResponse(message: string, requested: PipelineId, isTimeout: boo
   if (isTimeout) {
     return {
       domain,
-      output: `## ${name} Agent (Generation Timeout)\n\nThe backend was generating a comprehensive long-form report for **${message}**, but it took longer than expected to finish.\n\n**Suggestions:**\n- Check your backend terminal (` + '`python backend/main.py`' + `) to verify completion.\n- Or select **Research** directly from the agent selector and retry.`,
+      output: `## ${name} Agent (Generation Timeout)\n\nThe backend was generating a comprehensive long-form report for **${message}**, but it took longer than expected to finish.\n\n**Suggestions:**\n- Check your backend terminal (\`python backend/main.py\`) to verify completion.\n- Or select **Research** directly from the agent selector and retry.`,
       execution_log,
     };
   }

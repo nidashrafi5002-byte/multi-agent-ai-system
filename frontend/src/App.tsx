@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, LogOut } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import './App.css';
 import { Sidebar } from './components/layout/Sidebar';
 import { ToastProvider } from './components/ui/Toast';

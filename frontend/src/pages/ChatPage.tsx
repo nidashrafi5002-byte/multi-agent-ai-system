@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Clipboard, FileText, Image as ImageIcon, MessageSquare, Send, Sparkles, Trash2, Upload, UserRound } from 'lucide-react';
+import { Check, ChevronDown, Clipboard, MessageSquare, Send, Sparkles, Trash2, Upload, UserRound } from 'lucide-react';
 import { sendChat, analyzeFile } from '../api/chatService';
 import { MarkdownText } from '../components/ui/MarkdownText';
 import { useToast } from '../components/ui/Toast';
