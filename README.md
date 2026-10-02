@@ -2,6 +2,14 @@
 
 A sophisticated multi-agent AI orchestration system built with LangGraph, featuring 7 specialized agents for various tasks including research, stock analysis, code review, job search, flight tracking, image generation, and general Q&A.
 
+## 🌐 Live Demo
+
+**Frontend**: https://maia-frontend.vercel.app
+
+**Backend**: https://multi-agent-ai-system-nr1g.onrender.com
+
+The application is deployed and ready to use. Visit the frontend URL to interact with all 7 AI agents.
+
 ## 🚀 Features
 
 ### Core Capabilities
