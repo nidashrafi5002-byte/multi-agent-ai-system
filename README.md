@@ -234,6 +234,8 @@ Output: Extracted content with analysis options
 - **SerpAPI Key**: For web search
   - Get from: https://serpapi.com/
 - **JWT Secret Key**: For authentication (generate your own)
+- **AVIATIONSTACK_API_KEY**: For live flight tracking (optional)
+  - Get from: https://aviationstack.com/
 
 ## 📊 API Endpoints
 
@@ -268,6 +270,7 @@ npm test
 | `GROQ_API_KEY` | Groq API key for LLM | Yes |
 | `SERPAPI_KEY` | SerpAPI key for web search | Yes |
 | `JWT_SECRET_KEY` | Secret key for JWT tokens | Yes |
+| `AVIATIONSTACK_API_KEY` | AviationStack API key for flight tracking | Optional |
 
 ## 🤝 Contributing
 
