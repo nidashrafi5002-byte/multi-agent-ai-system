@@ -35,6 +35,11 @@ def get_db():
 
 
 def init_db():
+    # Ensure directory exists
+    db_dir = os.path.dirname(DB_PATH)
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir, exist_ok=True)
+    
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("""
