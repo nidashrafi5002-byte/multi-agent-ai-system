@@ -58,15 +58,11 @@ def generate_image(user_query: str) -> dict:
     print("   IMAGE GENERATION PIPELINE STARTED")
     print("="*60)
 
-    # Step 1 - Enhance prompt
+    # Step 1 - Enhance prompt (rule-based to prevent subject drift)
     print("\n✨ Step 1: Enhancing prompt...")
-    enhanced_prompt = enhance_prompt(user_query)
+    # Simple rule-based enhancement - just add quality keywords
+    enhanced_prompt = f"{user_query}, highly detailed, photorealistic, 8k, professional lighting, vibrant colors"
     print(f"✅ Enhanced prompt: {enhanced_prompt[:80]}...")
-
-    # Validate that original subject is preserved
-    if user_query.lower() not in enhanced_prompt.lower():
-        print(f"⚠️ Subject drift detected, using original query")
-        enhanced_prompt = user_query[:200]
 
     # Step 2 - Generate image
     print("\n🎨 Step 2: Generating image...")
