@@ -63,6 +63,11 @@ def generate_image(user_query: str) -> dict:
     enhanced_prompt = enhance_prompt(user_query)
     print(f"✅ Enhanced prompt: {enhanced_prompt[:80]}...")
 
+    # Validate that original subject is preserved
+    if user_query.lower() not in enhanced_prompt.lower():
+        print(f"⚠️ Subject drift detected, using original query")
+        enhanced_prompt = user_query[:200]
+
     # Step 2 - Generate image
     print("\n🎨 Step 2: Generating image...")
     encoded_prompt = quote(enhanced_prompt)
