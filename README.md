@@ -239,6 +239,8 @@ Output: Extracted content with analysis options
 - **AVIATIONSTACK_API_KEY**: For live flight tracking (optional)
   - Get from: https://aviationstack.com/
 
+**Note**: Image search uses Unsplash Source API (free, no API key required)
+
 ## 📊 API Endpoints
 
 ### Authentication
@@ -273,6 +275,8 @@ npm test
 | `SERPAPI_KEY` | SerpAPI key for web search | Yes |
 | `JWT_SECRET_KEY` | Secret key for JWT tokens | Yes |
 | `AVIATIONSTACK_API_KEY` | AviationStack API key for flight tracking | Optional |
+
+**Note**: Image search uses Unsplash Source API (free, no API key required)
 
 ## 🤝 Contributing
 
